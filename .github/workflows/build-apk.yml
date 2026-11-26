@@ -14,7 +14,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       - uses: subosito/flutter-action@v2
         with:
@@ -36,6 +36,18 @@ jobs:
           sed -i 's/flutter\.minSdkVersion/23/' android/app/build.gradle*
           # Release builds need the INTERNET permission
           sed -i 's#<application#<uses-permission android:name="android.permission.INTERNET"/>\n    <application#' android/app/src/main/AndroidManifest.xml
+
+      # Android lint crashes on some plugins and is not needed for an APK.
+      - name: Disable lint tasks
+        run: |
+          mkdir -p ~/.gradle/init.d
+          cat > ~/.gradle/init.d/no-lint.gradle <<'EOF'
+          allprojects {
+            tasks.configureEach { t ->
+              if (t.name.startsWith("lint")) { t.enabled = false }
+            }
+          }
+          EOF
 
       - name: Build release APK
         run: flutter build apk --release
