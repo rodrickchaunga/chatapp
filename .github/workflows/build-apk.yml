@@ -1,0 +1,46 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # The repo only holds lib/ and pubspec.yaml. The android/ folder is generated here.
+      - name: Generate Android project
+        run: |
+          flutter create . --platforms=android --project-name chatapp --org com.example
+          rm -rf test
+
+      - name: Add Firebase packages
+        run: flutter pub add firebase_core firebase_auth cloud_firestore
+
+      - name: Patch Android config
+        run: |
+          # Firebase needs minSdk 23
+          sed -i 's/flutter\.minSdkVersion/23/' android/app/build.gradle*
+          # Release builds need the INTERNET permission
+          sed -i 's#<application#<uses-permission android:name="android.permission.INTERNET"/>\n    <application#' android/app/src/main/AndroidManifest.xml
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chatapp-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
