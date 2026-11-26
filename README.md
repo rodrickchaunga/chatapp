@@ -52,9 +52,22 @@ The first build takes roughly 5-10 minutes. To rebuild without a new commit, use
 
 Sign up two accounts (use two phones, or one phone + a friend), search the other person, and chat.
 
+## Features (all work on the free Firebase Spark plan)
+
+- Unread badges and bold chats in the chat list
+- Read receipts: ✓ sent, ✓✓ seen
+- Photo messages (stored inside Firestore, resized to stay small)
+- In-app alert banner when a message arrives in another chat
+- Online status ("online" / "last seen") and "typing..." indicator
+- Profile pictures (Profile icon in the top bar)
+
+## Spark plan limits
+
+- Photos and avatars are stored as text in Firestore, because Firebase Storage needs the paid Blaze plan.
+- Alerts only appear while the app is open. Notifications when the app is closed need a server (Cloud Functions), which also needs Blaze.
+
 ## Next steps
 
-- Push notifications (FCM + Cloud Functions)
-- Image messages (Firebase Storage)
-- Read receipts and unread counts
-- Online / typing indicators
+- Real push notifications (FCM + Cloud Functions, Blaze plan)
+- Group chats
+- Delete / edit messages

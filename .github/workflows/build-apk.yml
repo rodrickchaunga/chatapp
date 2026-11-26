@@ -28,7 +28,7 @@ jobs:
           rm -rf test
 
       - name: Add Firebase packages
-        run: flutter pub add firebase_core firebase_auth cloud_firestore
+        run: flutter pub add firebase_core firebase_auth cloud_firestore image_picker
 
       - name: Patch Android config
         run: |

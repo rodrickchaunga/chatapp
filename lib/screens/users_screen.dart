@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/chat_service.dart';
+import '../widgets/user_avatar.dart';
 import 'chat_screen.dart';
 
 class UsersScreen extends StatefulWidget {
@@ -11,6 +12,7 @@ class UsersScreen extends StatefulWidget {
 }
 
 class _UsersScreenState extends State<UsersScreen> {
+  final Stream<Snap> _stream = ChatService.users();
   String _query = '';
 
   @override
@@ -33,7 +35,7 @@ class _UsersScreenState extends State<UsersScreen> {
           ),
           Expanded(
             child: StreamBuilder<Snap>(
-              stream: ChatService.users(),
+              stream: _stream,
               builder: (context, snap) {
                 if (snap.hasError) {
                   return Center(child: Text('Error: ${snap.error}'));
@@ -60,21 +62,21 @@ class _UsersScreenState extends State<UsersScreen> {
                   itemCount: users.length,
                   itemBuilder: (context, i) {
                     final u = users[i];
+                    final uid = u['uid'] as String;
                     final name = (u['name'] ?? 'User') as String;
                     return ListTile(
-                      leading: CircleAvatar(
-                        child: Text(
-                            name.isEmpty ? '?' : name[0].toUpperCase()),
+                      leading: UserAvatar(
+                        key: ValueKey(uid),
+                        uid: uid,
+                        name: name,
                       ),
                       title: Text(name),
                       subtitle: Text((u['email'] ?? '') as String),
                       onTap: () => Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => ChatScreen(
-                            otherUid: u['uid'] as String,
-                            otherName: name,
-                          ),
+                          builder: (_) =>
+                              ChatScreen(otherUid: uid, otherName: name),
                         ),
                       ),
                     );
